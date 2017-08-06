@@ -63,6 +63,7 @@ module.exports = function(options) {
        * Ensure that root is our client source directory
        */
       root: [ path.resolve(__dirname, 'client/src'), 'node_modules' ]
+
     },
 
     /**
@@ -161,7 +162,7 @@ module.exports = function(options) {
         {
           test: /\.scss$/,
           loader: 'style!css!postcss-loader!sass',
-          exclude: [ helpers.root('src/client/index.html') ] },
+          exclude: [ helpers.root('src/client/index.html') ]
         },
 
         /**

@@ -72,7 +72,7 @@ import { ChatModule } from './chat';
       <router-outlet></router-outlet>
     </main>
 
-    <vu-chat></vu-chat>
+    <!--<vu-chat></vu-chat>-->
 
     <pre class="app-state">this.appState.state = {{ appState.state | json }}</pre>
 

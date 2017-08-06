@@ -4,58 +4,109 @@
 // david.r.niciforovic@gmail.com
 // recipe.model.js may be freely distributed under the MIT license
 // ```
+'use strict'
 
-// */app/models/recipe.model.ts*
+/*
+ * Recipe Model
+ * Note: MongoDB will autogenerate an `_id` for each `Recipe` object
+ * created.
+ */
 
-// # Recipe Model
+/*
+ * Imports
+ */
 
-// Note: MongoDB will autogenerate an `_id` for each `Recipe` object created
+// Grab the Mongoose module.
+import mongoose = require('mongoose')
+const Schema = mongoose.Schema
 
-// Grab the Mongoose module
-import mongoose = require('mongoose');
 
-let Schema = mongoose.Schema;
-
+/**
+ * Recipe Interface.
+ */
 interface IRecipe {
-  title: string;
-  tags: Array<any>;
-  rating: number;
-  creator: string;
-  description: string;
+
+  /**
+   * Recipe title.
+   */
+  title: string
+
+  /**
+   * Tags which apply to this Recipe.
+   */
+  tags: Array<any>
+
+  /**
+   * User rating.
+   */
+  rating: number
+
+  /**
+   * Creator of this Recipe.
+   */
+  creator: string
+
+  /**
+   * Brief description of the Recipe.
+   */
+  description: string
+
+  /**
+   * Array of objects representing the ingredients of the Recipe.
+   */
   ingredients: {
-    amount: string;
-    unit: string;
-    name: string;
-  };
-  directions: Array<any>;
+    amount: string
+    unit: string
+    name: string
+  }
+
+  /**
+   * Array of directions for making the Recipe.
+   */
+  directions: Array<any>
+
 }
 
-export class Recipe implements IRecipe {
-  title: string;
-  tags: Array<any>;
-  rating: number;
-  creator: string;
-  description: string;
-  ingredients: {
-    amount: string;
-    unit: string;
-    name: string;
-  };
-  directions: Array<any>;
 
+/**
+ * Concrete recipe class.
+ * @see IRecipe
+ */
+export class Recipe implements IRecipe {
+
+  title: string
+  tags: Array<any>
+  rating: number
+  creator: string
+  description: string
+  ingredients: {
+    amount: string
+    unit: string
+    name: string
+  }
+  directions: Array<string>
+
+  /**
+   * Creates and returns a new instance of this class.
+   * @param {IRecipe} data Data from which to source the data for
+   * the new Recipe instance.
+   */
   constructor(data: IRecipe) {
-    this.title = data.title;
-    this.tags = data.tags;
-    this.rating = data.rating;
-    this.creator = data.creator;
-    this.description = data.description;
-    this.ingredients = data.ingredients;
-    this.directions = data.directions;
+    this.title = data.title
+    this.tags = data.tags
+    this.rating = data.rating
+    this.creator = data.creator
+    this.description = data.description
+    this.ingredients = data.ingredients
+    this.directions = data.directions
   }
 }
 
-// Create a `schema` for the `Todo` object
-let recipeSchema = new Schema({
+
+/**
+ * Recipe Schema.
+ */
+const recipeSchema = new Schema({
   title: { type : String },
   tags: { type: Array },
   rating: { type: Number},
@@ -73,11 +124,17 @@ let recipeSchema = new Schema({
     }
   }],
   directions: { type: Array }
-});
+})
+
+
+/*
+ * Exports
+ */
 
 // Export `Document`
 export interface RecipeDocument extends Recipe, mongoose.Document { }
 
 // Expose the `model` so that it can be imported and used in
 // the controller (to search, delete, etc.)
-export let Recipes = mongoose.model<RecipeDocument>('Recipe', recipeSchema);
+export const Recipes =
+  mongoose.model<RecipeDocument>('Recipe', recipeSchema)

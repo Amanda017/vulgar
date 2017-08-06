@@ -17,7 +17,7 @@ const path = require('path');
  * Webpack Plugins
  */
 const AssetsPlugin = require('assets-webpack-plugin');
-const ForkCheckerPlugin = require('awesome-typescript-loader').ForkCheckerPlugin;
+const CheckerPlugin = require('awesome-typescript-loader').CheckerPlugin;
 const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
 
 /**
@@ -104,7 +104,14 @@ module.exports = function(options) {
         {
           test: /\.ts$/,
           loaders: [
-            'awesome-typescript-loader'
+            {
+              loader: 'awesome-typescript-loader',
+              options: {
+                configFileName: 'tsconfig.server.json',
+                //useCache: !isProd
+                useCache: true
+              }
+            },
           ],
           exclude: [/\.(spec|e2e)\.ts$/]
         },
@@ -127,7 +134,7 @@ module.exports = function(options) {
         {
           test: /\.js$/,
           loaders: [
-            'babel'
+            'babel-loader'
           ],
           exclude: [
             helpers.root('node_modules')
@@ -150,8 +157,11 @@ module.exports = function(options) {
        * @see https://github.com/kossnocorp/assets-webpack-plugin
        */
       new AssetsPlugin({
+        // Path where to save the created JSON file.
         path: helpers.root('dist/server'),
+        // Name for the created json file.
         filename: 'webpack-assets.json',
+        // Whether to format the JSON output for readability.
         prettyPrint: true
       }),
 
@@ -162,7 +172,7 @@ module.exports = function(options) {
        *
        * @see https://github.com/s-panferov/awesome-typescript-loader#forkchecker-boolean-defaultfalse
        */
-      new ForkCheckerPlugin(),
+      new CheckerPlugin(),
 
       /**
        * Plugin LoaderOptionsPlugin (experimental)
@@ -170,6 +180,7 @@ module.exports = function(options) {
        * @see: https://gist.github.com/sokra/27b24881210b56bbaff7
        */
       new LoaderOptionsPlugin({ })
+
     ]
 
   }

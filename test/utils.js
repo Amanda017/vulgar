@@ -25,7 +25,7 @@ beforeEach((done) => {
           console.error(error);
       });
     }
-    
+
     return done();
   }
 

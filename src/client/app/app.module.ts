@@ -60,7 +60,7 @@ type StoreType = {
   imports: [ // import Angular's modules
     AdminModule,
     BrowserModule,
-    ChatModule,
+    //ChatModule,
     FormsModule,
     HttpModule,
     LoginModule,

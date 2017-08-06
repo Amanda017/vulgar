@@ -73,7 +73,6 @@
       true,
       "check-module"
     ],
-
     "eofline": true,
     "indent": [
       true,
@@ -81,7 +80,7 @@
     ],
     "max-line-length": [
       true,
-      100
+      72
     ],
     "no-require-imports": false,
     "no-trailing-whitespace": true,
@@ -108,7 +107,6 @@
       true,
       "check-open-brace",
       "check-catch",
-      "check-else",
       "check-finally",
       "check-whitespace"
     ],
@@ -117,7 +115,7 @@
       "single",
       "avoid-escape"
     ],
-    "semicolon": [true, "always"],
+    "semicolon": [false, "always"],
     "variable-name": [
       true,
       "check-format",

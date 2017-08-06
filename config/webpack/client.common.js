@@ -20,7 +20,7 @@ const AssetsPlugin = require('assets-webpack-plugin');
 const CommonsChunkPlugin = require('webpack/lib/optimize/CommonsChunkPlugin');
 const ContextReplacementPlugin = require('webpack/lib/ContextReplacementPlugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const ForkCheckerPlugin = require('awesome-typescript-loader').ForkCheckerPlugin;
+const CheckerPlugin = require('awesome-typescript-loader').CheckerPlugin;
 const HtmlElementsPlugin = require('../modules/html-elements.util.js');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
@@ -52,7 +52,7 @@ module.exports = function(options) {
   /**
    * Production option
    */
-  isProd = options.env === 'production';
+  const isProd = options.env === 'production';
 
   return {
 
@@ -118,7 +118,14 @@ module.exports = function(options) {
         {
           test: /\.ts$/,
           loaders: [
-            'awesome-typescript-loader',
+            {
+              loader: 'awesome-typescript-loader',
+              options: {
+                configFileName: 'tsconfig.client.json',
+                //useCache: !isProd
+                useCache: true
+              }
+            },
             'angular2-template-loader',
             '@angularclass/hmr-loader?pretty=' + !isProd + '&prod=' + isProd
           ],
@@ -200,13 +207,13 @@ module.exports = function(options) {
       }),
 
       /**
-       * Plugin: ForkCheckerPlugin
+       * Plugin: CheckerPlugin
        * Description: Perform type checking in a separate process, so webpack
        * doesn't need to wait
        *
        * @see https://github.com/s-panferov/awesome-typescript-loader#forkchecker-boolean-defaultfalse
        */
-      new ForkCheckerPlugin(),
+      new CheckerPlugin(),
 
       /**
        * Plugin: CommonsChunkPlugin

@@ -5,110 +5,117 @@
 // env.conf.js may be freely distributed under the MIT license
 // ```
 
-// *env.conf.js*
-
-// This is the file where we will configure our Node environmental
-// variables for production
-
 // Reference : http://thewebivore.com/super-simple-environment-variables-node-js/#comment-286662
 
-// # Node Env Variables
+/*
+ * Imports
+ */
 
-let config = require('./config');
+// Import configuration file.
+const config = require('./config')
 
-// Check each necessary node `environment variable` to see if a
-// value has been set and if not, use the `config` object to
-// supply appropriate values
-export function validateEnvVariables() {
+// Debug logging utility.
+import { IDebug } from 'debug'
+const debug: IDebug = require('debug')(`app:env_configuration`)
+
+
+/**
+ * Check each necessary node `environment variable` to see if a
+ * value has been set and if not, use the `config` object to
+ * supply appropriate values
+ */
+export function validateEnvVariables(): void {
 
   // If no value has been assigned to our environment variables,
   // set them up...
 
   if(!process.env.NODE_ENV)
-    process.env.NODE_ENV = config.ENV;
+    process.env.NODE_ENV = config.ENV
 
-  // Check to see if `process.env.NODE_ENV` is valid
-  validateNodeEnvironment();
+  // Check to see if `process.env.NODE_ENV` is valid.
+  validateNodeEnvironment()
 
   // For Express/Passport
   if (!process.env.SESSION_SECRET)
-    process.env.SESSION_SECRET = config.SESSION_SECRET;
+    process.env.SESSION_SECRET = config.SESSION_SECRET
 
   if (!process.env.PORT)
-    process.env.PORT = config.PORT;
+    process.env.PORT = config.PORT
 
   if(!process.env.SOCKET_PORT)
-    process.env.SOCKET_PORT = config.SOCKET_PORT;
+    process.env.SOCKET_PORT = config.SOCKET_PORT
 
-  // Set the appropriate MongoDB URI
-  validateMongoUri();
+  // Set the appropriate `MongoDB` `URI`
+  validateMongoUri()
 
-  return;
 }
 
-function validateNodeEnvironment() {
-  // Check to see that the `process.env.NODE_ENV has been
-  // set to an appropriate value of `development`, `production`
-  // or `test`. If not, alert the user and default to `development`
+
+/**
+ * Check to see that the `process.env.NODE_ENV has been
+ * set to an appropriate value of `development`, `production`
+ * or `test`. If not, alert the user and default to `development`
+ */
+function validateNodeEnvironment(): void {
 
   switch(process.env.NODE_ENV) {
     case 'development':
-      console.log(`Node environment set for ${process.env.NODE_ENV}`);
-      break;
+    case 'develop':
+    case 'dev':
+      debug(`Node environment set for ${process.env.NODE_ENV}`)
+      break
     case 'production':
-      console.log(`Node environment set for ${process.env.NODE_ENV}`);
-      break;
+    case 'prod':
+      debug(`Node environment set for ${process.env.NODE_ENV}`)
+      break
     case 'test':
-      console.log(`Node environment set for ${process.env.NODE_ENV}`);
-      break;
+      debug(`Node environment set for ${process.env.NODE_ENV}`)
+      break
     default:
-      console.log('Error: process.env.NODE_ENV should be set to a valid '
-        + ' value such as \'production\', \'development\', or \'test\'.');
-      console.log(`Value received: ${process.env.NODE_ENV}`);
-      console.log('Defaulting value for: development');
-      process.env.NODE_ENV = 'development';
-      break;
+      debug('Error: process.env.NODE_ENV should be set to a valid '
+        + 'value such as \'production\', \'development\', or \'test\'.')
+      debug(`Value received: ${process.env.NODE_ENV}`)
+      debug('Defaulting value for: development')
+      process.env.NODE_ENV = 'development'
+      break
   }
 
-  return;
 }
 
-// Set the appropriate MongoDB URI with the `config` object
-// based on the value in `process.env.NODE_ENV
-function validateMongoUri() {
+
+/**
+ * Set the appropriate `MongoDB` `URI` with the `config` object based on
+ * the value in `process.env.NODE_ENV`.
+ */
+function validateMongoUri(): void {
 
   if (!process.env.MONGO_URI) {
 
-    console.log('No value set for MONGO_URI...');
-    console.log('Using the supplied value from config object...')
+    debug('No value set for MONGO_URI...')
+    debug('Using the supplied value from config object...')
 
     switch(process.env.NODE_ENV) {
-
       case 'development':
-
-        process.env.MONGO_URI = config.MONGO_URI.DEVELOPMENT;
-        console.log(`MONGO_URI set for ${process.env.NODE_ENV}`);
-        break;
-
+      case 'develop':
+      case 'dev':
+        process.env.MONGO_URI = config.MONGO_URI.DEVELOPMENT
+        debug(`MONGO_URI set for ${process.env.NODE_ENV}`)
+        break
       case 'production':
-
-        process.env.MONGO_URI = config.MONGO_URI.PRODUCTION;
-        console.log(`MONGO_URI set for ${process.env.NODE_ENV}`);
-        break;
-
+      case 'prod':
+        process.env.MONGO_URI = config.MONGO_URI.PRODUCTION
+        debug(`MONGO_URI set for ${process.env.NODE_ENV}`)
+        break
       case 'test':
-
-        process.env.MONGO_URI = config.MONGO_URI.TEST;
-        console.log(`MONGO_URI set for ${process.env.NODE_ENV}`);
-        break;
-
+        process.env.MONGO_URI = config.MONGO_URI.TEST
+        debug(`MONGO_URI set for ${process.env.NODE_ENV}`)
+        break
       default:
-
-        console.log('Unexpected behavior! process.env.NODE_ENV set to ' +
-          'unexpected value!');
-        break;
+        debug('Unexpected behavior! process.env.NODE_ENV set to ' +
+          'unexpected value!')
+        break
     }
+
   }
 
-  return;
 }

@@ -4,38 +4,67 @@
 // david.r.niciforovic@gmail.com
 // todo.model.ts may be freely distributed under the MIT license
 // ```
+'use strict'
 
-// */app/models/todo.model.ts*
+/*
+ * Todo Model
+ * Note: MongoDB will autogenerate an `_id` for each `Recipe` object
+ * created.
+ */
 
-// # Todo Model
-
-// Note: MongoDB will autogenerate an `_id` for each `Todo` object created
+/*
+ * Imports
+ */
 
 // Grab the Mongoose module
-import mongoose = require('mongoose');
+import mongoose = require('mongoose')
 
-let Schema = mongoose.Schema;
+const Schema = mongoose.Schema
 
+
+/**
+ * Interface representing abstract Todo.
+ */
 interface ITodo {
-  text: string;
+  text: string
 }
 
-export class Todo implements ITodo {
-  text: string;
 
+/**
+ * Concrete Todo class.
+ * @see ITodo
+ */
+export class Todo implements ITodo {
+  text: string
+
+
+  /**
+   * Creates and returns a new instance of this class.
+   * @param {ITodo} data Data from which to source the data for
+   * the new Todo instance.
+   */
   constructor(data: ITodo) {
-    this.text = data.text;
+    this.text = data.text
   }
 }
 
-// Create a `schema` for the `Todo` object
-let todoSchema = new Schema({
-  text: { required: true, type : String }
-});
 
-// Export `Document`
+/**
+ * Todo Schema.
+ * @type {"mongoose".Schema}
+ */
+const todoSchema = new Schema({
+  text: { required: true, type : String }
+})
+
+
+/**
+ * Exports
+ */
+
+// Export `Document`.
 export interface TodoDocument extends Todo, mongoose.Document { }
 
-// Expose the `model` so that it can be imported and used in
-// the controller (to search, delete, etc.)
-export let Todos = mongoose.model<TodoDocument>('Todo', todoSchema);
+// Expose the `model` so that it can be imported and used in the
+// controller (to search, delete, etc.)
+export const Todos = mongoose.model<TodoDocument>('Todo', todoSchema)

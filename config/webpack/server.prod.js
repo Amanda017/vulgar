@@ -23,7 +23,10 @@ const commonConfig = require('./server.common.js');
 /**
  * Webpack Plugins
  */
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const CompressionPlugin = require('compression-webpack-plugin');
 const DedupePlugin = require('webpack/lib/optimize/DedupePlugin');
+const HashedModuleIdsPlugin = require('webpack/lib/HashedModuleIdsPlugin');
 const LoaderOptionsPlugin = require('webpack/lib/LoaderOptionsPlugin');
 const UglifyJsPlugin = require('webpack/lib/optimize/UglifyJsPlugin');
 const WebpackMd5Hash = require('webpack-md5-hash');
@@ -42,6 +45,10 @@ fs.readdirSync('node_modules')
  * Webpack Constants
  */
 const ENV = process.env.ENV = process.env.NODE_ENV = 'production';
+
+const BUNDLE_ANALYZER_PORT = 8888;
+const BUNDLE_ANALYZER_HOST = '127.0.0.1';
+
 
 module.exports = function(options) {
 
@@ -183,6 +190,71 @@ module.exports = function(options) {
        * @see https://www.npmjs.com/package/webpack-md5-hash
        */
       new WebpackMd5Hash(),
+
+      new HashedModuleIdsPlugin(),
+
+      /**
+       * Plugin LoaderOptionsPlugin (experimental)
+       *
+       * See: https://gist.github.com/sokra/27b24881210b56bbaff7
+       */
+      new LoaderOptionsPlugin({
+        minimize: true,
+        debug: false
+      }),
+
+      /**
+       * Plugin: CompressionPlugin
+       * Description: Prepares compressed versions of assets to serve
+       * them with Content-Encoding
+       *
+       * See: https://github.com/webpack/compression-webpack-plugin
+       */
+      new CompressionPlugin({
+        regExp: /\.js$|\.map$/,
+        threshold: 2 * 1024
+      }),
+
+      /**
+       * Plugin: BundleAnalyzerPlugin
+       * Description: Webpack plugin and CLI utility that represents
+       * bundle content as convenient interactive zoomable treemap
+       *
+       * `npm run build:prod -- --env.analyze` to use
+       *
+       * See: https://github.com/th0r/webpack-bundle-analyzer
+       */
+      new BundleAnalyzerPlugin({
+        // Can be `server`, `static` or `disabled`.
+        // In `server` mode analyzer will start HTTP server to show bundle report.
+        // In `static` mode single HTML file with bundle report will be generated.
+        // In `disabled` mode you can use this plugin to just generate Webpack Stats JSON file by setting `generateStatsFile` to `true`.
+        analyzerMode: 'server',
+        // Host that will be used in `server` mode to start HTTP server.
+        analyzerHost: BUNDLE_ANALYZER_HOST,
+        // Port that will be used in `server` mode to start HTTP server.
+        analyzerPort: BUNDLE_ANALYZER_PORT,
+        // Path to bundle report file that will be generated in `static` mode.
+        // Relative to bundles output directory.
+        reportFilename: 'report.html',
+        // Module sizes to show in report by default.
+        // Should be one of `stat`, `parsed` or `gzip`.
+        // See "Definitions" section for more information.
+        defaultSizes: 'parsed',
+        // Automatically open report in default browser
+        openAnalyzer: true,
+        // If `true`, Webpack Stats JSON file will be generated in bundles output directory
+        generateStatsFile: true,
+        // Name of Webpack Stats JSON file that will be generated if `generateStatsFile` is `true`.
+        // Relative to bundles output directory.
+        statsFilename: 'stats.json',
+        // Options for `stats.toJson()` method.
+        // For example you can exclude sources of your modules from stats file with `source: false` option.
+        // See more options here: https://github.com/webpack/webpack/blob/webpack-1/lib/Stats.js#L21
+        statsOptions: null,
+        // Log level. Can be 'info', 'warn', 'error' or 'silent'.
+        logLevel: 'info'
+      }),
 
       /**
        * Plugin: IgnorePlugin

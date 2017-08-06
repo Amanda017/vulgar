@@ -1,18 +1,21 @@
+'use strict'
+
 /**
  * Normalize a port into a number, string, or false.
  */
-export function normalizePort(input) {
-  let port = parseInt(input, 10);
+export function normalizePort(input: string):
+  boolean | string | number {
 
-  if (isNaN(port)) {
-    // named pipe
-    return input;
-  }
+  const port = parseInt(input, 10)
 
-  if (port >= 0) {
-    // port number
-    return port;
-  }
+  if (isNaN(port))
+    // Named pipe.
+    return input
 
-  return false;
+  if (port >= 0)
+    // Port number.
+    return port
+
+  return false
+
 }

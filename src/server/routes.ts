@@ -4,119 +4,132 @@
 // david.r.niciforovic@gmail.com
 // routes.js may be freely distributed under the MIT license
 // ```
+'use strict'
 
-import * as express from 'express';
+/*
+ * Imports
+ */
 
-// Load our `API` routes for user authentication
-import * as authRouter from "./routes/_authentication.router";
-// Load our `API` router for the `validation` service
-import * as validationRouter from "./routes/_validation.router";
-// Load our `API` router for the `todo` component
-import * as todoRouter from "./routes/_todo.router";
-// Load our `API` router for the `recipe` component
-import * as recipeRouter from './routes/_recipe.router';
+import * as express from 'express'
+import * as passportjs from 'passport'
 
-import { ServerEvent, IServerEvent } from './handlers/event.handler';
+// Load our `API` routes for user authentication.
+import * as authRouter from './routers/_authentication.router'
+// Load our `API` router for the `validation` service.
+import * as validationRouter from './routers/_validation.router'
+// Load our `API` router for the `todo` component.
+import * as todoRouter from './routers/_todo.router'
+// Load our `API` router for the `recipe` component.
+import * as recipeRouter from './routers/_recipe.router'
 
-// */app/routes.js*
+// Debug logging utility.
+import { IDebug } from 'debug'
+const debug: IDebug = require('debug')(`app:routes`)
 
-// ## Node API Routes
+// Node environment utility.
+import {isDevEnvironment} from './utils/env.utils.js'
 
-// Define routes for the Node backend
 
-export default (app: express.Application,
-                passport: any,
-                ServerEventEmitter: ServerEvent.EventEmitter) => {
+/*
+ * Constants
+ */
 
-  let router: express.Router;
+const API_PREFIX = '/api'
+
+const STATIC_CLIENT_ASSET_PATH = 'dist/client'
+
+/*
+ * Node API Routes
+ * Configure `Express` router.
+ */
+export function configureRouter(app: express.Application,
+                                passport: passportjs.Passport): void {
+
   // Get an instance of the `express` `Router`
-  router = express.Router();
+  const router: express.Router = express.Router()
 
   // Keep track of `http` requests
-  let numReqs: number = 0;
+  let numReqs: number = 0
 
-  // ### Express Middlware to use for all requests
+  // Express Middlware to use for all requests.
   router.use((req: express.Request,
               res: express.Response,
               next: express.NextFunction) => {
-    if(process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
 
-      let event: IServerEvent = {
-        type: ServerEvent.NotifyRequest,
-        from: process.pid
-      };
-      ServerEventEmitter.emit(event.type, event, () => {
-        numReqs++;
-        console.log('I sense a disturbance in the force...');
-        console.log(`{${event.from}} - requests served since last restart: ${numReqs}`);
-      });
-    }
+    if (isDevEnvironment())
+      numReqs++
+      debug('I sense a disturbance in the force...')
+      debug(`Requests served since last restart: ${numReqs}`)
+
     // Make sure we go to the next routes and don't stop here...
-    next();
-  });
+    next()
+  })
 
-  // Define a middleware function to be used for all secured routes
-  let auth = (req: express.Request,
-              res: express.Response,
-              next: express.NextFunction) => {
-
+  // Define a middleware function to be used for all secured routes.
+  const auth = (req: express.Request,
+                res: express.Response,
+                next: express.NextFunction): void => {
     if (!req.isAuthenticated())
-      res.send(401);
-
+      res.send(401)
     else
-      next();
-  };
+      next()
+  }
 
-  // Define a middleware function to be used for all secured administration
-  // routes
-  let admin = (req: express.Request,
-               res: express.Response,
-               next: express.NextFunction) => {
-
+  // Define a middleware function to be used for all secured
+  // administration routes.
+  const admin = (req: express.Request,
+                 res: express.Response,
+                 next: express.NextFunction): void => {
     if (!req.isAuthenticated() || req.user.role !== 'admin')
-      res.send(401);
-
+      res.send(401)
     else
-      next();
-  };
+      next()
+  }
 
-  // ### Server Routes
+  /*
+   * Server Routes
+   */
 
   // Handle things like API calls,
 
-  // #### Authentication routes
+  /*
+   * Authentication routes
+   */
 
   // Pass in our Express app and Router.
-  // Also pass in auth & admin middleware and Passport instance
-  let authRoutes: authRouter.Routes
-    = new authRouter.Routes(this.app, router, passport, auth, admin);
+  // Also pass in auth & admin middleware and Passport instance.
+  authRouter.Router.bootstrap(router, passport, auth, admin)
 
-  // #### RESTful API Routes
+  /*
+   * RESTful API Routes
+   */
 
-  // Pass in our Express app and Router
-  let validationRoutes: validationRouter.Routes
-    = new validationRouter.Routes(this.app, router);
+  validationRouter.Router.bootstrap(router)
+  todoRouter.Router.bootstrap(router)
+  recipeRouter.Router.bootstrap(router)
 
-  let todoRoutes: todoRouter.Routes = new todoRouter.Routes(this.app, router);
+  // All of our routes will be prefixed with `/api`
+  app.use(API_PREFIX, router)
 
-  let recipeRoutes: recipeRouter.Routes = new recipeRouter.Routes(this.app, router);
-
-  // All of our routes will be prefixed with /api
-  app.use('/api', router);
-
-  // ### Frontend Routes
+  /**
+   * Frontend Routes
+   */
 
   // Serve static front-end assets
-  app.use(express.static('dist/client'));
+  app.use(express.static(STATIC_CLIENT_ASSET_PATH))
 
-  // Route to handle all Angular requests
-  app.get('*', (req, res) => {
+  // Route to handle all Angular requests.
+  app.get('*', (req: express.Request, res: express.Response) => {
+    // Load the `src/app.html` file.
+    // Note that the root is set to the parent of this folder, ie the
+    // app root.
+    res.sendFile(
+      `${STATIC_CLIENT_ASSET_PATH}/index.html`,
+      { root: `${__dirname}/../../` }
+    )
+  })
 
-    // Load our src/app.html file
-    //** Note that the root is set to the parent of this folder, ie the app root **
-    res.sendFile('/dist/client/index.html', { root: __dirname + "/../../"});
-  });
+  // Use configured `router` middleware.
+  app.use(router)
 
-  // Use `router` middleware
-  app.use(router);
-};
+}

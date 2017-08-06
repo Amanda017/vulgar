@@ -1,0 +1,28 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "./src/server",
+    "types": [
+      "bcrypt-nodejs",
+      "body-parser",
+      "cookie-parser",
+      "debug",
+      "express",
+      "express-serve-static-core",
+      "express-session",
+      "jasmine",
+      "method-override",
+      "mime",
+      "mongoose",
+      "morgan",
+      "node",
+      "passport",
+      "passport-local",
+      "serve-static",
+      "socket.io",
+      "socket.io-client",
+      "source-map",
+      "uglify-js"
+    ]
+  }
+}

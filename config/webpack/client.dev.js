@@ -29,7 +29,7 @@ const NamedModulesPlugin = require('webpack/lib/NamedModulesPlugin');
  *
  * TODO: Ensure that environment settings are optimized between server/client
  */
-var envConfig = require('../config.json');
+const envConfig = require('../config.json');
 
 /**
  * Webpack Constants
